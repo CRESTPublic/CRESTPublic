@@ -1,0 +1,109 @@
+#
+# Parameter names are not case sensitive.
+#
+# "Range parameters" take every value from a specified inclusive range.
+# If multiple range parameters are specified, every possible permutation
+# of their values will be performed.
+#
+# "Constant parameters" must have a fixed value per experiment.
+# 
+# Valid parameters:
+# 	Range parameters: 		
+# 	— nNodes
+# 	— messageThroughput (mps)
+# 	Constant parameters:
+# 	— dispath
+# 	— plpath
+# 	— expOutputDir
+# 	— nTrials
+# 	— nStandardNodes
+# 	— nLeaders
+# 	— nFollowers
+# 	— nWanderers
+# 	— timeout
+# 	
+# Parameter details:
+# 	dispath
+# 	— 	Path to preprocessed DIS directory; or
+# 	— 	Path to DIS file (.dispdus or .dispdis.gz) [NYI]
+# 	plpath
+# 	— 	Path to prolog prioritiser rules file (.pl)
+# 	expOutputDir
+# 	— 	The directory where all output will be placed
+# 	nTrials
+# 	— 	The number of trials (replications) over which to average the results
+# 		from each permutation of the range parameters.
+# 	nStandardNodes
+# 	— 	The maximum number of nodes that should use standard position data.
+# 	nLeaders, nFollowers, nWanderers
+# 	— 	The maximum number of nodes that should use modified position data.
+# 	— 	For experiments where the nNodes range parameter is less than
+#	  	(nStandardNodes + nLeaders + nFollowers + nWanderers), the nodes first
+#	  	use standard position data, then leader data, then follower data, then
+#	  	wanderer data.
+# 	timeout
+# 	— 	The maximum time in seconds that an experiment will run, not including
+# 		initialisation and cleanup. If all Nodes finish before this time (e.g.
+# 		if they run out of events), the experiment will end normally. Otherwise,
+# 		it will be terminated before Nodes signal completion.
+#
+
+# Specify any default parameters to be used in the following experiments.
+Default { 	# Brace must be on same line as name of block
+	dispath : "data/dis/all"
+	plpath : "src/main/prolog/dynamic.pl"
+	expOutputDir : "src/experiment/output"
+	timeout : 60
+}
+
+# This experiment will perform 10 trials of each of the 100
+# permutations of numberOfNodes and messageThroughput.
+Experiment {
+	nTrials : 2
+	nNodes : [2, 5, 6, 7]
+	messageThroughput : 3				# messages per time step
+	messageThroughput : [2 .. 2 .. 6] 	# Multiple ranges can be specified
+	nStandardNodes : 3
+	nLeaders : 2
+	nFollowers : 2
+	nWanderers : 3
+
+	delays {
+		raw
+		mean
+		stdev
+	}
+
+	broadcasts {
+		raw : 1
+		mean
+		stdev : [2..3]
+	}
+}        	
+
+Experiment {
+	nTrials : 10
+	nNodes : [2 .. 2 .. 40]
+	messageThroughput : [5 .. 2 .. 10] # messages per time step
+	nStandardNodes : 20
+	nLeaders : 10
+	nFollowers : 10
+	nWanderers : 10
+}
+
+# This default block will apply to subsequent experiments. Defaults from the previous
+# block are carried over if not overwritten here (except range parameters, which are
+# reset for each new default block).
+Default {
+	nTrials : 20
+	nNodes : 20
+}
+
+Experiment {
+	messageThroughput : 1
+	messageThroughput : [2 .. 2 .. 20] # messages per time step
+	nStandardNodes : 8
+	nLeaders : 4
+	nFollowers : 4
+	nWanderers : 4
+}
